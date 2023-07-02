@@ -1,41 +1,14 @@
-import uuid
 
-from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-
-from models import Base, User
-
-engine = create_engine("sqlite://", echo=True)
+import db
+from models import TransactionType
+from services import transaction_type_service
 
 
 def main():
-    Base.metadata.create_all(bind=engine)
-
-    with Session(engine) as session:
-        gleb = User(
-            login="gleb12",
-            email="test@gmail.com",
-            username="gleb12",
-            hash_password="test",
-        )
-
-        gleb.created_by = "admin"
-        gleb.id = uuid.uuid4()
-
-        print(type(uuid.uuid4()))
-        print(gleb)
-        print(gleb.id)
-        print(type(gleb.id))
-
-        session.add(gleb)
-        session.commit()
-        print("COMMIT END!!!!!")
-        gleb.id = uuid.uuid4()
-
-        print("START!!!!")
-        # for user in session.scalars(stmt):
-        #     print(user)
+    with db.SessionLocal() as session:
+        transaction_type: TransactionType = transaction_type_service.find_by_code(session, 'expense')
+        print(transaction_type.code)
 
 
 if __name__ == "__main__":

@@ -19,6 +19,8 @@ class Base(DeclarativeBase):
     deleted_by: Mapped[str | None]
     deleted_date: Mapped[datetime | None]
 
+    version: Mapped[int]
+
     @staticmethod
     def build_table_name(table_name: str) -> str:
         return f'bookkeeping_api_{table_name}'

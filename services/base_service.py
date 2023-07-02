@@ -14,6 +14,7 @@ class BaseService:
         pass
 
     def create(self, entity: Base):
+
         self.__session.add(entity)
 
     def update(self):

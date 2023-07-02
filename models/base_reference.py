@@ -8,4 +8,4 @@ class BaseReference(Base):
 
     code: Mapped[str]
     name: Mapped[str]
-    description: Mapped[str]
+    description: Mapped[str | None]
