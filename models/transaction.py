@@ -26,16 +26,16 @@ class Transaction(Base):
     type: Mapped["TransactionType"] = relationship(foreign_keys=type_id)
 
     # Расход
-    expense_account_id: Mapped[UUID] = mapped_column(ForeignKey("bookkeeping_api_account.id"))
+    expense_account_id: Mapped[UUID | None] = mapped_column(ForeignKey("bookkeeping_api_account.id"))
     expense_account: Mapped["Account"] = relationship(foreign_keys=expense_account_id)
-    expense: Mapped[Decimal] = mapped_column(default=lambda: Decimal("0.0"))
+    expense: Mapped[Decimal | None] = mapped_column(default=lambda: Decimal("0.0"))
 
     # Доход
-    income_account_id: Mapped[UUID] = mapped_column(ForeignKey("bookkeeping_api_account.id"))
+    income_account_id: Mapped[UUID | None] = mapped_column(ForeignKey("bookkeeping_api_account.id"))
     income_account: Mapped["Account"] = relationship(foreign_keys=income_account_id)
-    income: Mapped[Decimal] = mapped_column(default=lambda: Decimal("0.0"))
+    income: Mapped[Decimal | None] = mapped_column(default=lambda: Decimal("0.0"))
 
     category_id: Mapped[UUID] = mapped_column(ForeignKey("bookkeeping_api_category.id"))
     category: Mapped["Category"] = relationship(foreign_keys=category_id)
 
-    comment: Mapped[str]
+    comment: Mapped[str | None]

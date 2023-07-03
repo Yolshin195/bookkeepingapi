@@ -1,15 +1,15 @@
-
-from sqlalchemy.orm import Session
 import db
-from models import TransactionType
-from services import transaction_type_service
+from fastapi import FastAPI, Depends
+from services.transaction_service import ExpenseRegistrationModel, create_expense_transaction, find_all
+
+app = FastAPI()
 
 
-def main():
-    with db.SessionLocal() as session:
-        transaction_type: TransactionType = transaction_type_service.find_by_code(session, 'expense')
-        print(transaction_type.code)
+@app.post("/transaction/expense/add")
+def add_expense_transaction(expense_registration_model: ExpenseRegistrationModel, session=Depends(db.get_db)):
+    create_expense_transaction(session, expense_registration_model)
 
 
-if __name__ == "__main__":
-    main()
+@app.get("/transaction/all")
+def get_all_transaction(session=Depends(db.get_db)):
+    return find_all(session)

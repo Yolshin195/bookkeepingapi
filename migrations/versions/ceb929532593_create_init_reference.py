@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
-from models import Currency, TransactionType, User
+from models import Currency, TransactionType, User, Account, Category
 
 # revision identifiers, used by Alembic.
 revision = 'ceb929532593'
@@ -29,6 +29,12 @@ def upgrade() -> None:
                  code='USD', name='Доллар'),
         Currency(id='9fce08b0-89c9-4303-b5b3-e950314ea114', created_by='alembic_adm', version=1,
                  code='IDR', name='Индонезийская рупия'),
+
+        Account(id='5b50a0d5-5009-4001-b7a4-dc2d2650cb58', created_by='alembic_adm', version=1,
+                code="RUB", name='Наличные рубли', currency_id='2103a409-ff56-46d3-98ef-4220036bfec4'),
+
+        Category(id='c92aed39-5c66-4241-bd5f-39d93ebc6383', created_by='alembic_adm', version=1,
+                 code="food", name='Еда'),
 
         TransactionType(id='e103a303-00e7-412b-8f03-d94a7648534f', created_by='alembic_adm', version=1,
                         code='expense', name='Доход'),
