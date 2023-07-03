@@ -1,15 +1,8 @@
-import db
-from fastapi import FastAPI, Depends
-from services.transaction_service import ExpenseRegistrationModel, create_expense_transaction, find_all
+from fastapi import FastAPI
+from routes.transaction_router import transaction_router
+from routes.reference import reference_router
 
-app = FastAPI()
+app = FastAPI(title="Bookkeeping API")
 
-
-@app.post("/transaction/expense/add")
-def add_expense_transaction(expense_registration_model: ExpenseRegistrationModel, session=Depends(db.get_db)):
-    create_expense_transaction(session, expense_registration_model)
-
-
-@app.get("/transaction/all")
-def get_all_transaction(session=Depends(db.get_db)):
-    return find_all(session)
+app.include_router(transaction_router)
+app.include_router(reference_router)
