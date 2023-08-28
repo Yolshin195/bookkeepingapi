@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends
 
-import db
 from models.DTO.reference_model import ReferenceModel
-from services.account_service import find_all
+from services.category_service import CategoryService
 
-account_router = APIRouter(prefix="/account")
+account_router = APIRouter(prefix="/account", tags=["reference"])
 
 
 @account_router.get("/all")
-def get_all(skip: int = 0, limit: int = 100, session=Depends(db.get_db)) -> list[ReferenceModel]:
-    return find_all(session, skip, limit)
+def get_all(skip: int = 0, limit: int = 100, category_service: CategoryService = Depends()) -> list[ReferenceModel]:
+    return category_service.find_all(skip, limit)

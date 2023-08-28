@@ -19,7 +19,7 @@ class Base(DeclarativeBase):
     deleted_by: Mapped[str | None]
     deleted_date: Mapped[datetime | None]
 
-    version: Mapped[int]
+    version: Mapped[int] = mapped_column(default=1)
 
     @staticmethod
     def build_table_name(table_name: str) -> str:

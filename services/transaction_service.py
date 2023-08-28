@@ -1,14 +1,19 @@
+from typing import Annotated
+
+from fastapi import Depends
 from pydantic import BaseModel
 from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+import db
 from models import Transaction, User, TransactionType, Account, Category
-from services import user_service
-from services import transaction_type_service
-from services import account_service
-from services import category_service
+from services.account_service import AccountService
+from services.auth import get_current_active_user
+from services.base_service import BaseService
+from services.category_service import CategoryService
+from services.transaction_type_service import TransactionTypeService
 
 
 class ExpenseRegistrationModel(BaseModel):
@@ -18,30 +23,40 @@ class ExpenseRegistrationModel(BaseModel):
     comment: str | None
 
 
-def find_all(session: Session, skip: int = 0, limit: int = 100) -> list[Transaction]:
-    find_all_sql = select(Transaction).offset(skip).limit(limit)
-    result: list[Transaction] = session.scalars(find_all_sql).all()
-    return result
+class TransactionService(BaseService):
+    def __init__(self,
+                 session: Annotated[Session, Depends(db.get_db)],
+                 current_user: Annotated[User, Depends(get_current_active_user)]):
+        super().__init__(session, current_user)
+        self.category_service = CategoryService(self.session, self.current_user)
+        self.transaction_type_service = TransactionTypeService(self.session, self.current_user)
+        self.account_service = AccountService(self.session, self.current_user)
 
+    def find_all(self, skip: int = 0, limit: int = 100) -> list[Transaction]:
+        find_all_sql = select(Transaction).where(
+            Transaction.deleted_date.is_(None),
+            Transaction.owner == self.current_user
+        ).offset(skip).limit(limit)
+        result: list[Transaction] = list(self.session.scalars(find_all_sql).all())
+        return result
 
-def create_expense_transaction(session: Session, expense_registration_data: ExpenseRegistrationModel):
-    owner: User = user_service.find_by_login(session, "admin")
-    transaction_type: TransactionType = transaction_type_service.find_by_code(session, "expense")
-    expense_account: Account = account_service.find_by_code(session, expense_registration_data.expense_account_code)
-    expense: Decimal = expense_registration_data.expense
-    category: Category = category_service.find_by_code(session, expense_registration_data.category_code)
-    comment: str = expense_registration_data.comment
+    def create_expense_transaction(self, expense_registration_data: ExpenseRegistrationModel):
+        transaction_type: TransactionType = self.transaction_type_service.find_by_code("expense")
+        expense_account: Account = self.account_service.find_by_code(expense_registration_data.expense_account_code)
+        expense: Decimal = expense_registration_data.expense
+        category: Category = self.category_service.find_by_code(expense_registration_data.category_code)
+        comment: str = expense_registration_data.comment
 
-    new_transaction: Transaction = Transaction(
-        created_by=owner.login,
-        version=1,
-        owner=owner,
-        type=transaction_type,
-        expense_account=expense_account,
-        expense=expense,
-        category=category,
-        comment=comment
-    )
+        new_transaction: Transaction = Transaction(
+            created_by=self.current_user.username,
+            version=1,
+            owner=self.current_user,
+            type=transaction_type,
+            expense_account=expense_account,
+            expense=expense,
+            category=category,
+            comment=comment
+        )
 
-    session.add(new_transaction)
-    session.commit()
+        self.session.add(new_transaction)
+        self.session.commit()

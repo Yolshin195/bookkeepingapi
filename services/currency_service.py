@@ -1,9 +1,10 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from models import Currency
+from services.base_service import BaseService
 
 
-def find_by_code(session: Session, code: str) -> Currency:
-    find_by_code_sql = select(Currency).where(Currency.code == code)
-    return session.scalar(find_by_code_sql)
+class CurrencyService(BaseService):
+    def find_by_code(self, code: str) -> Currency:
+        find_by_code_sql = select(Currency).where(Currency.code == code)
+        return self.session.scalar(find_by_code_sql)

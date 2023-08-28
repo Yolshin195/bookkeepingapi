@@ -1,24 +1,13 @@
-from typing import TYPE_CHECKING
-from sqlalchemy.orm import Session
+from typing import TYPE_CHECKING, Annotated
 
-if TYPE_CHECKING:
-    from models import Base
+from fastapi import Depends
+from sqlalchemy.orm import Session
+import db
+from services.auth import get_current_active_user
+from models import User
 
 
 class BaseService:
-
-    def __init__(self, session: Session):
-        self.__session: Session = session
-
-    def find_by_id(self):
-        pass
-
-    def create(self, entity: Base):
-
-        self.__session.add(entity)
-
-    def update(self):
-        pass
-
-    def delete(self):
-        pass
+    def __init__(self, session: Annotated[Session, Depends(db.get_db)], current_user: Annotated[User, Depends(get_current_active_user)]):
+        self.session: Session = session
+        self.current_user: User = current_user
