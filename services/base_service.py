@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Annotated
+from typing import Annotated
 
 from fastapi import Depends
 from sqlalchemy.orm import Session
@@ -8,6 +8,8 @@ from models import User
 
 
 class BaseService:
-    def __init__(self, session: Annotated[Session, Depends(db.get_db)], current_user: Annotated[User, Depends(get_current_active_user)]):
+    def __init__(self,
+                 session: Annotated[Session, Depends(db.get_db)],
+                 current_user: Annotated[User, Depends(get_current_active_user)]):
         self.session: Session = session
         self.current_user: User = current_user
