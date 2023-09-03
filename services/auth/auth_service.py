@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Annotated
+from typing import Annotated, TYPE_CHECKING
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -8,10 +8,10 @@ from sqlalchemy.orm import Session
 
 import db
 from config import SECRET_KEY, ALGORITHM
-from models import User
 from models.auth import TokenData
 from services.auth.password_service import verify_password
 from services.user_service import find_by_username
+from models import User
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
@@ -25,7 +25,7 @@ def authenticate_user(session: Session, username: str, password: str):
     user = get_user(session, username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.user_password.hashed_password):
         return False
     return user
 
@@ -65,5 +65,27 @@ async def get_current_active_user(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
     if not current_user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user")
     return current_user
+
+
+async def get_current_super_user(
+    current_active_user: Annotated[User, Depends(get_current_active_user)]
+):
+    if not current_active_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user")
+    return current_active_user
+
+
+async def is_super_user(
+    current_active_user: Annotated[User, Depends(get_current_active_user)]
+):
+    if not current_active_user.is_superuser:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user")
+    return True

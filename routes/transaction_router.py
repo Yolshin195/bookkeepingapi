@@ -7,7 +7,7 @@ transaction_router = APIRouter(prefix="/transaction", tags=["transaction"])
 
 
 @transaction_router.post("/expense/add")
-def add_expense_transaction(
+async def add_expense_transaction(
         transaction_service: Annotated[TransactionService, Depends()],
         expense_registration_model: ExpenseRegistrationModel,
 ):
@@ -15,7 +15,7 @@ def add_expense_transaction(
 
 
 @transaction_router.get("/all")
-def get_all_transaction(
+async def get_all_transaction(
         transaction_service: Annotated[TransactionService, Depends()],
         skip: int = 0, limit: int = 100
 ):

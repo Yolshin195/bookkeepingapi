@@ -7,5 +7,5 @@ category_router = APIRouter(prefix="/category", tags=["reference"])
 
 
 @category_router.get("/all")
-def get_all(skip: int = 0, limit: int = 100, category_service: CategoryService = Depends()) -> list[ReferenceModel]:
+async def get_all(skip: int = 0, limit: int = 100, category_service: CategoryService = Depends()) -> list[ReferenceModel]:
     return category_service.find_all(skip, limit)

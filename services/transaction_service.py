@@ -1,16 +1,9 @@
-from typing import Annotated
-
-from fastapi import Depends
 from pydantic import BaseModel
 from decimal import Decimal
-
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-import db
 from models import Transaction, User, TransactionType, Account, Category
 from services.account_service import AccountService
-from services.auth import get_current_active_user
 from services.base_service import BaseService
 from services.category_service import CategoryService
 from services.transaction_type_service import TransactionTypeService
@@ -24,10 +17,7 @@ class ExpenseRegistrationModel(BaseModel):
 
 
 class TransactionService(BaseService):
-    def __init__(self,
-                 session: Annotated[Session, Depends(db.get_db)],
-                 current_user: Annotated[User, Depends(get_current_active_user)]):
-        super().__init__(session, current_user)
+    def __init__post__(self):
         self.category_service = CategoryService(self.session, self.current_user)
         self.transaction_type_service = TransactionTypeService(self.session, self.current_user)
         self.account_service = AccountService(self.session, self.current_user)

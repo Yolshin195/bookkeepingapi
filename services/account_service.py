@@ -12,6 +12,6 @@ class AccountService(BaseService):
 
     def find_all(self, skip: int = 0, limit: int = 100) -> list[ReferenceModel]:
         find_all_sql = select(Account).offset(skip).limit(limit)
-        result: list[ReferenceModel] = [ReferenceModel(id=category.id, code=category.code, name=category.name) for
-                                        category in self.session.scalars(find_all_sql).all()]
+        result: list[ReferenceModel] = [ReferenceModel(id=account.id, code=account.code, name=account.name) for
+                                        account in self.session.scalars(find_all_sql).all()]
         return result
